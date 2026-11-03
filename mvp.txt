@@ -1,0 +1,214 @@
+# Documento de Requisitos — Library Management System
+
+**Versão:** 1.0  
+**Tipo:** MVP — Minimum Viable Product  
+**Plataforma:** Aplicação Java CLI (Terminal)  
+**Banco de dados:** MySQL
+
+---
+
+## 1. Visão geral
+
+O Library Management System será um sistema de gerenciamento de biblioteca, desenvolvido em Java, com o objetivo de controlar livros, leitores e empréstimos.
+
+O sistema permitirá que um operador gerencie o acervo, cadastre leitores, registre empréstimos e devoluções, além de consultar a disponibilidade dos livros.
+
+O projeto terá como foco a aplicação de conceitos de programação orientada a objetos, arquitetura em camadas, persistência de dados e regras de negócio.
+
+## 2. Objetivos do MVP
+
+- Gerenciar o acervo de livros.
+- Manter um cadastro de leitores.
+- Controlar empréstimos e devoluções.
+- Garantir a disponibilidade dos exemplares.
+- Manter um histórico de empréstimos.
+- Persistir todas as informações em banco de dados.
+
+## 3. Requisitos funcionais
+
+### RF01 — Gerenciamento de livros
+
+O sistema deverá permitir:
+
+- RF01.1: Cadastrar novos livros.
+- RF01.2: Listar todos os livros cadastrados.
+- RF01.3: Consultar um livro pelo seu identificador.
+- RF01.4: Pesquisar livros pelo título ou autor.
+- RF01.5: Atualizar informações de um livro.
+- RF01.6: Excluir um livro, desde que não possua empréstimos ativos.
+
+**Atributos de um livro:**
+- ID.
+- Título.
+- Autor.
+- ISBN.
+- Ano de publicação.
+- Quantidade total de exemplares.
+- Quantidade disponível.
+
+### RF02 — Gerenciamento de leitores
+
+O sistema deverá permitir:
+
+- RF02.1: Cadastrar leitores.
+- RF02.2: Listar leitores cadastrados.
+- RF02.3: Consultar um leitor pelo identificador.
+- RF02.4: Pesquisar leitores pelo nome.
+- RF02.5: Atualizar informações de um leitor.
+- RF02.6: Desativar o cadastro de um leitor.
+
+**Atributos de um leitor:**
+- ID.
+- Nome completo.
+- E-mail.
+- Telefone.
+- Data de cadastro.
+- Status (ativo ou inativo).
+
+### RF03 — Gerenciamento de empréstimos
+
+O sistema deverá permitir:
+
+- RF03.1: Registrar o empréstimo de um livro para um leitor.
+- RF03.2: Registrar a devolução de um livro.
+- RF03.3: Consultar os empréstimos ativos.
+- RF03.4: Consultar o histórico de empréstimos.
+- RF03.5: Consultar os empréstimos de um leitor específico.
+
+**Atributos de um empréstimo:**
+- ID.
+- Identificador do livro.
+- Identificador do leitor.
+- Data do empréstimo.
+- Data prevista para devolução.
+- Data efetiva de devolução.
+- Status (ativo ou devolvido).
+
+### RF04 — Controle de disponibilidade
+
+O sistema deverá:
+
+- RF04.1: Impedir empréstimos quando não houver exemplares disponíveis.
+- RF04.2: Diminuir a quantidade disponível ao registrar um empréstimo.
+- RF04.3: Aumentar a quantidade disponível ao registrar uma devolução.
+- RF04.4: Impedir que a quantidade disponível seja superior à quantidade total.
+- RF04.5: Impedir empréstimos para leitores inativos.
+
+## 4. Requisitos não funcionais
+
+- RNF01: O sistema deverá ser desenvolvido em Java.
+- RNF02: O projeto deverá utilizar Maven para gerenciamento de dependências.
+- RNF03: O MySQL deverá ser utilizado como banco de dados relacional.
+- RNF04: A comunicação com o banco deverá ser realizada utilizando JDBC.
+- RNF05: O código deverá seguir princípios de organização e separação de responsabilidades.
+- RNF06: As operações deverão possuir tratamento adequado de exceções.
+- RNF07: As informações deverão permanecer armazenadas após o encerramento da aplicação.
+- RNF08: Operações que alterem simultaneamente o empréstimo e a disponibilidade deverão utilizar transações no banco de dados.
+
+## 5. Regras de negócio
+
+- RN01: Um livro não poderá ser emprestado quando sua quantidade disponível for zero.
+- RN02: Um leitor não poderá realizar empréstimos se estiver inativo.
+- RN03: Cada empréstimo deverá possuir uma data prevista de devolução.
+- RN04: A devolução somente poderá ser registrada uma vez por empréstimo.
+- RN05: Um livro não poderá ser excluído enquanto possuir empréstimos ativos.
+- RN06: Um leitor não poderá ser excluído fisicamente enquanto possuir histórico de empréstimos.
+- RN07: A quantidade disponível nunca poderá ser negativa.
+- RN08: A quantidade total de exemplares deverá ser maior ou igual à quantidade disponível.
+- RN09: A quantidade disponível deverá ser atualizada na mesma transação em que o empréstimo ou a devolução for registrado.
+
+**Prazo de empréstimo:** 14 dias corridos.
+
+## 6. Modelagem inicial do banco de dados
+
+O banco deverá possuir inicialmente três tabelas principais:
+
+### Tabela: books
+
+| Campo | Tipo sugerido |
+|---|---|
+| id | BIGINT |
+| title | VARCHAR(255) |
+| author | VARCHAR(150) |
+| isbn | VARCHAR(20) |
+| publication_year | INT |
+| total_copies | INT |
+| available_copies | INT |
+
+### Tabela: readers
+
+| Campo | Tipo sugerido |
+|---|---|
+| id | BIGINT |
+| name | VARCHAR(150) |
+| email | VARCHAR(150) |
+| phone | VARCHAR(20) |
+| registration_date | DATE |
+| active | BOOLEAN |
+
+### Tabela: loans
+
+| Campo | Tipo sugerido |
+|---|---|
+| id | BIGINT |
+| book_id | BIGINT |
+| reader_id | BIGINT |
+| loan_date | DATE |
+| due_date | DATE |
+| return_date | DATE (NULL) |
+| status | VARCHAR(20) |
+
+Os campos `book_id` e `reader_id` deverão ser chaves estrangeiras.
+
+## 7. Arquitetura do projeto
+
+O sistema deverá utilizar arquitetura em camadas, separando responsabilidades:
+
+- **Model:** representação das entidades do sistema.
+- **Repository:** operações de persistência e consultas ao banco.
+- **Service:** implementação das regras de negócio.
+- **Controller:** coordenação das operações solicitadas pela interface.
+- **Exception:** exceções personalizadas e tratamento de erros.
+- **Main:** inicialização e interface de interação via terminal.
+
+## 8. Critérios de aceitação
+
+O MVP será considerado funcional quando:
+
+1. For possível cadastrar, consultar, atualizar e excluir livros respeitando as regras estabelecidas.
+2. For possível cadastrar, consultar, atualizar e desativar leitores.
+3. For possível registrar empréstimos e devoluções.
+4. A disponibilidade dos livros for atualizada corretamente.
+5. O sistema impedir operações inválidas.
+6. O histórico de empréstimos permanecer disponível.
+7. Os dados forem persistidos no MySQL.
+8. As operações críticas forem executadas de maneira consistente, utilizando transações.
+
+## 9. Fora do escopo do MVP
+
+As funcionalidades abaixo não serão implementadas inicialmente:
+
+- Interface gráfica.
+- Aplicação web ou mobile.
+- Autenticação e controle de usuários operadores.
+- Multas por atraso.
+- Reservas de livros.
+- Notificações por e-mail.
+- Integração com APIs externas.
+- Relatórios estatísticos avançados.
+- Deploy em nuvem.
+
+## 10. Tecnologias previstas
+
+| Tecnologia | Finalidade |
+|---|---|
+| Java | Linguagem principal |
+| Maven | Gerenciamento de dependências |
+| MySQL | Banco de dados |
+| JDBC | Conexão e persistência |
+| Git/GitHub | Versionamento |
+| JUnit | Testes automatizados |
+
+---
+
+**Resultado esperado:** uma aplicação funcional de gerenciamento de biblioteca, com persistência relacional, regras de negócio bem definidas e código organizado, servindo como primeiro projeto de portfólio para desenvolvimento Backend Java.
