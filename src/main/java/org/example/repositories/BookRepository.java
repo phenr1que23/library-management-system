@@ -33,7 +33,7 @@ public class BookRepository {
     }
     public List<Book> getAllBooks() throws SQLException{
         String sql = "SELECT id, title, author, isbn, publication_date, " +
-                "total_copies, available_quantity FROM books";
+                "total_copies, available_quantity FROM books ORDER BY id";
         List<Book> books = new ArrayList<>();
         try(Connection connection = new DatabaseConnection().getConnection();
             PreparedStatement pstmt = connection.prepareStatement(sql);

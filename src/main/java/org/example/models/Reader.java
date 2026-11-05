@@ -1,7 +1,6 @@
 package org.example.models;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Reader {
     private Long id;
@@ -17,6 +16,13 @@ public class Reader {
         this.email = email;
         this.phone = phone;
         this.registrationDate = registrationDate;
+        this.isActive = isActive;
+    }
+
+    public Reader(String fullName, String email, String phone, Boolean isActive) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
         this.isActive = isActive;
     }
 
@@ -66,5 +72,10 @@ public class Reader {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    @Override
+    public String toString() {
+        return "Id: " + getId() + " Nome: " + getFullName();
     }
 }
