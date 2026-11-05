@@ -77,4 +77,9 @@ public class Book {
     public void setAvailableQuantity(Integer availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
+
+    @Override
+    public String toString() {
+        return "Id: " + id.toString() + " Title: " + title;
+    }
 }
