@@ -103,6 +103,19 @@
                 }
             }
         }
+
+        public boolean hasActiveLoanByBookId(Long bookId) throws SQLException{
+            String sql = "SELECT id, book_id, reader_id FROM loans " +
+                    "WHERE book_id = ? AND is_active = TRUE";
+            try (Connection connection = new DatabaseConnection().getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)){
+                pstmt.setLong(1, bookId);
+                try(ResultSet rs = pstmt.executeQuery()){
+                   return rs.next();
+                }
+            }
+        }
+
         private Loan resultSetToLoan(ResultSet rs) throws SQLException{
             Long id = rs.getLong("id");
             Long bookId = rs.getLong("book_id");
