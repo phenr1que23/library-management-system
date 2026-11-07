@@ -9,14 +9,16 @@ public class Loan {
     private LocalDate loanDate;
     private LocalDate expectedReturnDate;
     private LocalDate effectiveReturnDate;
+    private Boolean isActive;
 
-    public Loan(Long id, Long bookId, Long readerId, LocalDate loanDate, LocalDate expectedReturnDate, LocalDate effectiveReturnDate) {
+    public Loan(Long id, Long bookId, Long readerId, LocalDate loanDate, LocalDate expectedReturnDate, LocalDate effectiveReturnDate, Boolean isActive) {
         this.id = id;
         this.bookId = bookId;
         this.readerId = readerId;
         this.loanDate = loanDate;
         this.expectedReturnDate = expectedReturnDate;
         this.effectiveReturnDate = effectiveReturnDate;
+        this.isActive = isActive;
     }
 
     public Long getId() {
@@ -65,5 +67,13 @@ public class Loan {
 
     public void setEffectiveReturnDate(LocalDate effectiveReturnDate) {
         this.effectiveReturnDate = effectiveReturnDate;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 }
