@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import org.example.config.DatabaseConnection;
+import org.example.models.Book;
 import org.example.models.Reader;
 
 import java.sql.Connection;
@@ -32,13 +33,7 @@ public class ReaderRepository {
         PreparedStatement pstmt = connection.prepareStatement(sql);
         ResultSet rs = pstmt.executeQuery()){
             while (rs.next()){
-                Long id = rs.getLong("id");
-                String fullName = rs.getString("full_name");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                LocalDate registrationDate = rs.getDate("registration_date").toLocalDate();
-                Boolean isActive = rs.getBoolean("is_active");
-                readers.add(new Reader(id, fullName, email, phone, registrationDate, isActive));
+                readers.add(resultSetToReader(rs));
             }
         return readers;
         }
@@ -52,13 +47,7 @@ public class ReaderRepository {
         pstmt.setLong(1, id);
         try (ResultSet rs = pstmt.executeQuery()){
             if(rs.next()){
-                Long readerId = rs.getLong("id");
-                String fullName = rs.getString("full_name");
-                String email = rs.getString("email");
-                String phone = rs.getString("phone");
-                LocalDate registrationDate = rs.getDate("registration_date").toLocalDate();
-                Boolean isActive = rs.getBoolean("is_active");
-                return new Reader(readerId, fullName, email, phone, registrationDate, isActive);
+                return resultSetToReader(rs);
             }
             return null;
             }
@@ -78,6 +67,16 @@ public class ReaderRepository {
         }
     }
 
+    public void changeActiveStatus(Long id, boolean isActive) throws SQLException{
+        String sql = "UPDATE readers SET is_active=? WHERE id=?";
+        try(Connection connection = new DatabaseConnection().getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)){
+            pstmt.setBoolean(1, isActive);
+            pstmt.setLong(2, id);
+            int rowsAffected = pstmt.executeUpdate();
+        }
+    }
+
     public void deleteReader(Long id) throws SQLException{
         String sql = "DELETE FROM readers WHERE id=?";
         try(Connection connection = new DatabaseConnection().getConnection();
@@ -86,4 +85,34 @@ public class ReaderRepository {
         int rowsAffected = pstmt.executeUpdate();
         }
     }
+
+    public List<Reader> searchReaders(String keyword) throws SQLException{
+        String sql = "SELECT id, full_name, email, phone, registration_date, " +
+                "is_active FROM readers " +
+                "WHERE full_name LIKE ? OR email LIKE ? OR phone LIKE ?";
+        List<Reader> results = new ArrayList<>();
+        try(Connection connection = new DatabaseConnection().getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)){
+            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setString(2, "%" + keyword + "%");
+            pstmt.setString(3, "%" + keyword + "%");
+            try(ResultSet rs = pstmt.executeQuery()){
+                while(rs.next()){
+                    results.add(resultSetToReader(rs));
+                }
+                return results;
+            }
+        }
+    }
+
+    private Reader resultSetToReader(ResultSet rs) throws SQLException{
+        Long readerId = rs.getLong("id");
+        String fullName = rs.getString("full_name");
+        String email = rs.getString("email");
+        String phone = rs.getString("phone");
+        LocalDate registrationDate = rs.getDate("registration_date").toLocalDate();
+        Boolean isActive = rs.getBoolean("is_active");
+        return new Reader(readerId, fullName, email, phone, registrationDate, isActive);
+    }
+
 }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-    BookRepository bookRepository = new BookRepository();
-        System.out.println(bookRepository.searchBooks("hzauhzauhza"));
+    ReaderRepository readerRepository = new ReaderRepository();
+        System.out.println(readerRepository.searchReaders("19"));
     }
 }
