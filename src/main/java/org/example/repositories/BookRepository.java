@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BookRepository {
     public void createBook(Book book) throws SQLException {
@@ -45,7 +46,7 @@ public class BookRepository {
             return books;
         }
     }
-    public Book getBookById(Long id) throws SQLException {
+    public Optional<Book> getBookById(Long id) throws SQLException {
         String sql = "SELECT id, title, author, isbn, publication_date, " +
                 "total_copies, available_quantity FROM books WHERE id = ?";
         try (Connection connection = new DatabaseConnection().getConnection();
@@ -53,9 +54,9 @@ public class BookRepository {
             pstmt.setLong(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return resultSetToBook(rs);
+                    return Optional.of(resultSetToBook(rs));
                 }
-                return null;
+                return Optional.empty();
             }
         }
     }
@@ -77,23 +78,46 @@ public class BookRepository {
         }
     }
 
-    public void updateBook(Book book) throws SQLException{
+    public void updateBook(Connection connection, Book book) throws SQLException{
         String sql = "UPDATE books SET title=?, author=?, isbn=?, publication_date=?, " +
                 "total_copies=?, available_quantity=? WHERE id=?";
-        try(Connection connection = new DatabaseConnection().getConnection();
-            PreparedStatement pstmt = connection.prepareStatement(sql)){
-                pstmt.setString(1, book.getTitle());
-                pstmt.setString(2, book.getAuthor());
-                pstmt.setString(3, book.getIsbn());
-                if (book.getPublicationDate() != null) {
-                    pstmt.setDate(4, java.sql.Date.valueOf(book.getPublicationDate()));
-                } else {
-                    pstmt.setNull(4, java.sql.Types.DATE);
-                }
-                pstmt.setInt(5, book.getTotalOfCopies());
-                pstmt.setInt(6, book.getAvailableQuantity());
-                pstmt.setLong(7, book.getId());
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)){
+            pstmt.setString(1, book.getTitle());
+            pstmt.setString(2, book.getAuthor());
+            pstmt.setString(3, book.getIsbn());
+            if (book.getPublicationDate() != null) {
+                pstmt.setDate(4, java.sql.Date.valueOf(book.getPublicationDate()));
+            } else {
+                pstmt.setNull(4, java.sql.Types.DATE);
+            }
+            pstmt.setInt(5, book.getTotalOfCopies());
+            pstmt.setInt(6, book.getAvailableQuantity());
+            pstmt.setLong(7, book.getId());
             int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Book not found.");
+            }
+        }
+    }
+
+    public void decreaseAvailableQuantity(Connection connection, Long bookId) throws SQLException{
+        String sql = "UPDATE books SET available_quantity = available_quantity - 1 WHERE id=? AND available_quantity > 0";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, bookId);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected != 1) {
+                throw new SQLException("Book not found or unavailable.");
+            }
+        }
+    }
+    public void increaseAvailableQuantity(Connection connection, Long bookId) throws SQLException{
+        String sql = "UPDATE books SET available_quantity = available_quantity + 1 WHERE id=? AND available_quantity < total_copies";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, bookId);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected != 1) {
+                throw new SQLException("Book not found or unavailable.");
+            }
         }
     }
 

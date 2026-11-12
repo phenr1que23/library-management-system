@@ -21,6 +21,9 @@ public class Loan {
         this.isActive = isActive;
     }
 
+    public Loan() {
+    }
+
     public Long getId() {
         return id;
     }

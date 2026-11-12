@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ReaderRepository {
     public void createReader(Reader reader) throws SQLException {
@@ -39,7 +40,7 @@ public class ReaderRepository {
         }
     }
 
-    public Reader getReaderById(Long id) throws SQLException{
+    public Optional<Reader> getReaderById(Long id) throws SQLException{
         String sql = "SELECT id, full_name, email, phone, registration_date, is_active FROM readers " +
                 "WHERE id = ?";
         try(Connection connection = new DatabaseConnection().getConnection();
@@ -47,9 +48,9 @@ public class ReaderRepository {
         pstmt.setLong(1, id);
         try (ResultSet rs = pstmt.executeQuery()){
             if(rs.next()){
-                return resultSetToReader(rs);
+                return Optional.of(resultSetToReader(rs));
             }
-            return null;
+            return Optional.empty();
             }
         }
     }
