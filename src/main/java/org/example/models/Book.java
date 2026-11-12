@@ -1,7 +1,6 @@
 package org.example.models;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Book {
     private Long id;
@@ -21,6 +20,16 @@ public class Book {
         this.totalOfCopies = totalOfCopies;
         this.availableQuantity = availableQuantity;
     }
+
+    public Book(String title, String author, String isbn, LocalDate publicationDate, Integer totalOfCopies) {
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publicationDate = publicationDate;
+        this.totalOfCopies = totalOfCopies;
+        this.availableQuantity = availableQuantity;
+    }
+
 
     public Long getId() {
         return id;
