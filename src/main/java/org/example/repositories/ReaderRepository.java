@@ -54,6 +54,22 @@ public class ReaderRepository {
             }
         }
     }
+
+    public Optional<Reader> getReaderByEmail(String email) throws SQLException{
+        String sql = "SELECT id, full_name, email, phone, registration_date, is_active FROM readers " +
+                "WHERE email = ?";
+        try(Connection connection = new DatabaseConnection().getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)){
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    return Optional.of(resultSetToReader(rs));
+                }
+                return Optional.empty();
+            }
+        }
+    }
+
     public void updateReader(Reader reader) throws SQLException{
         String sql = "UPDATE readers SET full_name=?, email=?, phone=?, " +
                 "is_active=? WHERE id=?";

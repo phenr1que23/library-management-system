@@ -9,6 +9,7 @@ import org.example.repositories.LoanRepository;
 import org.example.repositories.ReaderRepository;
 import org.example.services.BookService;
 import org.example.services.LoanService;
+import org.example.services.ReaderService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -16,11 +17,15 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-        BookService bookService = new BookService();
-        LoanService loanService = new LoanService();
-        Book book = bookService.findBookById(13L);
+        ReaderService readerService = new ReaderService();
+        Reader reader = new Reader();
 
-        bookService.deleteBook(3L);
+        reader.setId(999L);
+        reader.setFullName("Leitor Inexistente");
+        reader.setEmail("inexistente@gmail.com");
+        reader.setPhone("19977777777");
 
+
+        readerService.updateReader(reader);
     }
 }

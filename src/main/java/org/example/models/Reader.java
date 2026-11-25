@@ -8,7 +8,7 @@ public class Reader {
     private String email;
     private String phone;
     private LocalDate registrationDate;
-    private Boolean isActive;
+    private Boolean isActive = true;
 
     public Reader(Long id, String fullName, String email, String phone, LocalDate registrationDate, Boolean isActive) {
         this.id = id;
@@ -24,6 +24,9 @@ public class Reader {
         this.email = email;
         this.phone = phone;
         this.isActive = isActive;
+    }
+
+    public Reader() {
     }
 
     public Long getId() {
