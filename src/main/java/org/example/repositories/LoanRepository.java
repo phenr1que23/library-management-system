@@ -46,15 +46,12 @@
             return loans;
             }
         }
-        public void registerEffectiveReturn(Connection connection, Long id, LocalDate effectiveReturnDate) throws SQLException{
+        public int registerEffectiveReturn(Connection connection, Long id, LocalDate effectiveReturnDate) throws SQLException{
             String sql = "UPDATE loans SET effective_return_date=?, is_active=FALSE WHERE id=? AND effective_return_date IS NULL AND is_active = TRUE";
             try(PreparedStatement pstmt = connection.prepareStatement(sql)){
                 pstmt.setDate(1, java.sql.Date.valueOf(effectiveReturnDate));
                 pstmt.setLong(2, id);
-                int rowsAffected = pstmt.executeUpdate();
-                if(rowsAffected == 0){
-                    throw new SQLException("Unable to register loan return.");
-                }
+                return pstmt.executeUpdate();
             }
         }
 

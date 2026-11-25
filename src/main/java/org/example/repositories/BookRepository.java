@@ -122,18 +122,14 @@ public class BookRepository {
     }
 
     public void deleteBook(Long id) throws SQLException{
-        // MAYBE I WILL APPLY THIS SCRIPT IN BookService.
-        LoanRepository loanRepository = new LoanRepository();
-        if(loanRepository.hasActiveLoanByBookId(id)){
-            throw new IllegalStateException(
-                    "Cannot delete a book with active loans."
-            );
-        }
         String sql = "DELETE FROM books WHERE id = ?";
         try (Connection connection = new DatabaseConnection().getConnection();
             PreparedStatement pstmt = connection.prepareStatement(sql)){
                 pstmt.setLong(1, id);
                 int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new SQLException("Book not found.");
+                }
         }
     }
 

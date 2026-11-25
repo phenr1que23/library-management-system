@@ -5,6 +5,8 @@ import org.example.models.Reader;
 import org.example.repositories.ReaderRepository;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Locale;
 
 public class ReaderService {
     private final ReaderRepository readerRepository = new ReaderRepository();
@@ -86,10 +88,41 @@ public class ReaderService {
     }
 
     private String normalizeEmail(String email) {
-        return email.trim().toLowerCase();
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     private String normalizePhone(String phone) {
         return phone.replaceAll("\\D", "");
+    }
+
+    public Reader findReaderById(Long id) throws SQLException {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid reader ID.");
+        }
+
+        return readerRepository.getReaderById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reader not found."));
+    }
+
+    public List<Reader> getAllReaders() throws SQLException {
+        return readerRepository.getAllReaders();
+    }
+
+    public List<Reader> searchReaders(String keyword) throws SQLException {
+        if (keyword == null || keyword.isBlank()) {
+            throw new IllegalArgumentException("Search keyword cannot be empty.");
+        }
+
+        return readerRepository.searchReaders(keyword.trim());
+    }
+
+    public void changeActiveStatus(Long id, boolean isActive) throws SQLException {
+        findReaderById(id);
+        readerRepository.changeActiveStatus(id, isActive);
+    }
+
+    public void deleteReader(Long id) throws SQLException {
+        findReaderById(id);
+        readerRepository.deleteReader(id);
     }
 }

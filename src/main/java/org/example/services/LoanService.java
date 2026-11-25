@@ -30,10 +30,12 @@ public class LoanService {
         if(book.getAvailableQuantity() <= 0){
             throw new RuntimeException("Without sufficient book.");
         }
-
         LocalDate loanDate = loan.getLoanDate();
-        if (loanDate == null) {
-            loanDate = LocalDate.now();
+        if (loanDate != null &&
+                loanDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException(
+                    "Loan date cannot be in the future."
+            );
         }
         loan.setLoanDate(loanDate);
         LocalDate expectedReturnDate = loanDate.plusDays(14);
@@ -103,7 +105,14 @@ public class LoanService {
         try (Connection connection = new DatabaseConnection().getConnection()) {
             connection.setAutoCommit(false);
             try {
-                loanRepository.registerEffectiveReturn(connection, id, effectiveReturnDate);
+                int rowsAffected = loanRepository.registerEffectiveReturn(
+                        connection, id, effectiveReturnDate
+                );
+                if (rowsAffected == 0) {
+                    throw new IllegalStateException(
+                            "Loan was already returned or does not exist."
+                    );
+                }
                 bookRepository.increaseAvailableQuantity(connection, loan.getBookId());
                 connection.commit();
             } catch (SQLException | RuntimeException e) {

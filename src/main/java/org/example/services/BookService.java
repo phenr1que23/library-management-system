@@ -8,6 +8,7 @@ import org.example.repositories.LoanRepository;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 
 public class BookService {
     final private BookRepository bookRepository = new BookRepository();
@@ -16,6 +17,9 @@ public class BookService {
     public void createBook(Book book) throws SQLException {
         if (book == null) {
             throw new IllegalArgumentException("Book cannot be null.");
+        }
+        if (book.getTotalOfCopies() == null || book.getTotalOfCopies() < 0) {
+            throw new IllegalArgumentException("Invalid total copies.");
         }
         book.setAvailableQuantity(book.getTotalOfCopies());
         validateBook(book);
@@ -38,7 +42,7 @@ public class BookService {
         if (keyword == null || keyword.isBlank()) {
             throw new IllegalArgumentException("Search keyword cannot be empty.");
         }
-        String preparedKeyword = keyword.trim().toLowerCase();
+        String preparedKeyword = keyword.trim().toLowerCase(Locale.ROOT);
         return this.bookRepository.searchBooks(preparedKeyword);
     }
 
@@ -59,13 +63,12 @@ public class BookService {
         int borrowedCopies = existingBook.getTotalOfCopies()
                 - existingBook.getAvailableQuantity();
 
-        book.setAvailableQuantity(book.getTotalOfCopies() - borrowedCopies);
-
         if (book.getTotalOfCopies() < borrowedCopies) {
             throw new IllegalArgumentException(
                     "Total copies cannot be less than borrowed copies."
             );
         }
+        book.setAvailableQuantity(book.getTotalOfCopies() - borrowedCopies);
         try (Connection connection = new DatabaseConnection().getConnection()) {
             this.bookRepository.updateBook(connection, book);
         }
